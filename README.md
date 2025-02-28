@@ -21,6 +21,7 @@ cd fact_checking_system
 ### install requirements and dependencies
 
 pip install -r requirements.txt
+
 pip install torch transformers datasets evaluate pandas scikit-learn streamlit
 
 ## 🚀 Using the Model
