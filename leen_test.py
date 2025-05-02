@@ -23,7 +23,8 @@ if not os.path.exists(model_path):
     subprocess.run(["python", "main.py"], check=True)
 
 # Step 2: Unzip the saved model if necessary
-if os.path.exists(backup_zip):
+#if os.path.exists(backup_zip):
+if not os.path.exists(model_path) and os.path.exists(backup_zip): ### this was no correct before it should be changed to this 
     print("Extracting model backup...")
     shutil.unpack_archive(backup_zip, model_path)
     print("Model extracted successfully!")
@@ -40,8 +41,26 @@ def predict_label(text):
         inputs = loaded_tokenizer(text, return_tensors="pt").to(device)
         logits = loaded_model(**inputs).logits
         probs = softmax(logits.cpu().numpy(), axis=1)
-        return ["true", "mostly-true", "half-true", "barely-true", "false", "pants-fire"][np.argmax(probs)]
+        true_prob = probs[0][0]
+        false_prob = probs[0][1]
 
+        if true_prob > false_prob:
+            if true_prob >= 0.80:
+                return "true"
+            elif true_prob >= 0.40:
+                return "mostly-true"
+            else:
+                return "half-true"
+        else:
+            if false_prob >= 0.80:
+                return "pants-fire"
+            elif false_prob >= 0.40:
+                return "false"
+            else:
+                return "barely-true"
+            
+
+        
 # Step 5: Streamlit UI for Query Input
 st.title('Leen Test')
 query = st.text_input("Enter your query:")
